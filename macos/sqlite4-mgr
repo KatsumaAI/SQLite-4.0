@@ -1,0 +1,237 @@
+#!/bin/bash
+
+# SQLite-4.0 macOS Status Bar Manager
+# Alternative to Xcode app - uses native macOS features
+
+SQLITE4_SERVER="$HOME/Library/Application Support/SQLite4"
+SQLITE4_LOG="$HOME/Library/Logs/SQLite4.log"
+SQLITE4_PORT=4444
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Check if server is running
+is_running() {
+    pgrep -f "sqlite4-server" > /dev/null 2>&1
+}
+
+# Start server
+start_server() {
+    if is_running; then
+        echo -e "${YELLOW}Server is already running${NC}"
+        return 1
+    fi
+    
+    echo "Starting SQLite-4.0 server..."
+    
+    # Create directories
+    mkdir -p "$SQLITE4_SERVER"
+    mkdir -p "$(dirname "$SQLITE4_LOG")"
+    
+    # Start server
+    cd "$SQLITE4_SERVER"
+    nohup sqlite4-server --port "$SQLITE4_PORT" > "$SQLITE4_LOG" 2>&1 &
+    
+    # Wait for startup
+    sleep 2
+    
+    if is_running; then
+        echo -e "${GREEN}Server started on port $SQLITE4_PORT${NC}"
+        echo "Admin panel: http://localhost:8443"
+    else
+        echo -e "${RED}Failed to start server${NC}"
+        echo "Check logs: $SQLITE4_LOG"
+    fi
+}
+
+# Stop server
+stop_server() {
+    if ! is_running; then
+        echo -e "${YELLOW}Server is not running${NC}"
+        return 1
+    fi
+    
+    echo "Stopping SQLite-4.0 server..."
+    pkill -f sqlite4-server
+    
+    if ! is_running; then
+        echo -e "${GREEN}Server stopped${NC}"
+    else
+        echo -e "${RED}Failed to stop server${NC}"
+    fi
+}
+
+# Restart server
+restart_server() {
+    echo "Restarting SQLite-4.0 server..."
+    stop_server
+    sleep 1
+    start_server
+}
+
+# Show status
+show_status() {
+    echo "SQLite-4.0 Status"
+    echo "================="
+    echo ""
+    
+    if is_running; then
+        echo -e "Server: ${GREEN}Running${NC}"
+        echo "Port: $SQLITE4_PORT"
+        
+        # Count connections
+        connections=$(lsof -i :"$SQLITE4_PORT" 2>/dev/null | wc -l)
+        echo "Connections: $((connections - 1))"
+    else
+        echo -e "Server: ${RED}Stopped${NC}"
+    fi
+    
+    # Database size
+    db_size=$(du -sh "$SQLITE4_SERVER"/*.db 2>/dev/null | cut -f1 || echo "0 KB")
+    echo "Database size: $db_size"
+    
+    # Last backup
+    last_backup=$(ls -t "$SQLITE4_SERVER"/*.sqlite4bak 2>/dev/null | head -1)
+    if [ -n "$last_backup" ]; then
+        echo "Last backup: $(basename "$last_backup")"
+    else
+        echo "Last backup: Never"
+    fi
+    
+    echo ""
+    echo "Admin panel: http://localhost:8443"
+    echo "Logs: $SQLITE4_LOG"
+}
+
+# Open admin panel
+open_admin() {
+    if ! is_running; then
+        echo -e "${RED}Server is not running${NC}"
+        return 1
+    fi
+    
+    echo "Opening admin panel..."
+    open "http://localhost:8443"
+}
+
+# Create backup
+create_backup() {
+    if ! is_running; then
+        echo -e "${RED}Server is not running${NC}"
+        return 1
+    fi
+    
+    backup_file="$SQLITE4_SERVER/backup_$(date +%Y%m%d_%H%M%S).sqlite4bak"
+    
+    echo "Creating backup..."
+    sqlite4-backup --encrypt --compress "$backup_file"
+    
+    if [ -f "$backup_file" ]; then
+        echo -e "${GREEN}Backup created: $backup_file${NC}"
+    else
+        echo -e "${RED}Backup failed${NC}"
+    fi
+}
+
+# Show logs
+show_logs() {
+    if [ -f "$SQLITE4_LOG" ]; then
+        tail -f "$SQLITE4_LOG"
+    else
+        echo "No logs found"
+    fi
+}
+
+# Install as login item (menu bar app alternative)
+install_menu_bar() {
+    echo "Installing menu bar helper..."
+    
+    # Create AppleScript app
+    osacompile -o "$HOME/Library/Scripts/SQLite4Status.app" "$SQLITE4_SERVER/../macos/sqlite4-status.scpt"
+    
+    # Create LaunchAgent for auto-start
+    mkdir -p ~/Library/LaunchAgents
+    
+    cat > ~/Library/LaunchAgents/ai.sqlite4.statusbar.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.sqlite4.statusbar</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>osascript</string>
+        <string>-e</string>
+        <string>'tell application "SQLite4Status" to run'</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>
+EOF
+    
+    launchctl load ~/Library/LaunchAgents/ai.sqlite4.statusbar.plist 2>/dev/null || true
+    
+    echo "Menu bar helper installed"
+    echo "Note: For full menu bar app, use Xcode build from macos/ folder"
+}
+
+# Show help
+show_help() {
+    echo "SQLite-4.0 macOS Manager"
+    echo ""
+    echo "Usage: $(basename "$0") [command]"
+    echo ""
+    echo "Commands:"
+    echo "  start       Start the database server"
+    echo "  stop        Stop the database server"
+    echo "  restart     Restart the server"
+    echo "  status      Show server status"
+    echo "  admin       Open admin panel in browser"
+    echo "  backup      Create encrypted backup"
+    echo "  logs        Show server logs (follow mode)"
+    echo "  menu-bar    Install menu bar helper"
+    echo "  help        Show this help"
+    echo ""
+    echo "Without command, shows status"
+}
+
+# Main
+case "${1:-status}" in
+    start)
+        start_server
+        ;;
+    stop)
+        stop_server
+        ;;
+    restart)
+        restart_server
+        ;;
+    status)
+        show_status
+        ;;
+    admin)
+        open_admin
+        ;;
+    backup)
+        create_backup
+        ;;
+    logs)
+        show_logs
+        ;;
+    menu-bar)
+        install_menu_bar
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        show_status
+        ;;
+esac
