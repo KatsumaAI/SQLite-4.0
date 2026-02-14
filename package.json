@@ -1,0 +1,39 @@
+{
+  "name": "sqlite4",
+  "version": "4.0.0",
+  "description": "Secure embedded SQL database with encryption, access control, and enterprise features",
+  "main": "src/sqlite4.js",
+  "bin": {
+    "sqlite4": "src/sqlite4.js",
+    "sqlite4-server": "src/server.js",
+    "sqlite4-client": "src/client.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "server": "node src/server.js",
+    "client": "node src/client.js",
+    "test": "node -e \"const SQLite4 = require('./src/sqlite4.js'); const db = new SQLite4({dbPath: ':memory:'}); console.log(db.execute('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)')); console.log(db.execute(\\\"INSERT INTO test (name) VALUES ('hello')\\\")); console.log(db.execute('SELECT * FROM test'));\"",
+    "security-setup": "bash security-configs/setup-security.sh"
+  },
+  "keywords": [
+    "database",
+    "sqlite",
+    "encrypted",
+    "security",
+    "embedded",
+    "sql"
+  ],
+  "author": "Katsuma",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KatsumaAI/SQLite-4.0.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "optionalDependencies": {
+    "better-sqlite3": "^9.0.0"
+  }
+}
