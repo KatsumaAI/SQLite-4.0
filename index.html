@@ -24,8 +24,6 @@
             --border: #1e293b;
             --border-light: #334155;
             --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
         }
         
         * {
@@ -46,7 +44,6 @@
             overflow-x: hidden;
         }
         
-        /* Navigation */
         .navbar {
             position: fixed;
             top: 0;
@@ -56,7 +53,6 @@
             background: rgba(10, 15, 26, 0.9);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            transition: all 0.3s ease;
         }
         
         .navbar-content {
@@ -84,22 +80,6 @@
         
         .logo-link:hover .logo-img {
             transform: scale(1.05);
-        }
-        
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .logo-version {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            margin-left: 0.25rem;
         }
         
         .nav-links {
@@ -138,7 +118,6 @@
             box-shadow: 0 8px 25px var(--accent-glow);
         }
         
-        /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -293,7 +272,6 @@
             margin-top: 0.5rem;
         }
         
-        /* Section Styles */
         section {
             padding: 6rem 2rem;
             position: relative;
@@ -336,7 +314,6 @@
             margin: 0 auto;
         }
         
-        /* Features Grid */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -383,9 +360,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
             margin-bottom: 1.5rem;
             transition: transform 0.3s ease;
+        }
+        
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            color: white;
         }
         
         .feature-card:hover .feature-icon {
@@ -404,7 +386,6 @@
             line-height: 1.6;
         }
         
-        /* Code Section */
         .code-section {
             background: var(--bg-card);
             border-top: 1px solid var(--border);
@@ -481,7 +462,6 @@
             color: #2dd4bf;
         }
         
-        /* Footer */
         footer {
             background: var(--bg-card);
             border-top: 1px solid var(--border);
@@ -511,15 +491,6 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-        }
-        
-        .footer-logo span {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         
         .footer-description {
@@ -571,22 +542,6 @@
             font-size: 0.875rem;
         }
         
-        .footer-social {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .footer-social a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        
-        .footer-social a:hover {
-            color: var(--accent);
-        }
-        
-        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -599,15 +554,10 @@
         }
         
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
-        /* Responsive */
         @media (max-width: 1024px) {
             .footer-content {
                 grid-template-columns: 1fr 1fr;
@@ -615,32 +565,11 @@
         }
         
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .hero-stats {
-                flex-direction: column;
-                gap: 2rem;
-            }
-            
-            .hero-stat-value {
-                font-size: 2rem;
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .footer-brand {
-                max-width: 100%;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-            }
+            .nav-links { display: none; }
+            .hero-stats { flex-direction: column; gap: 2rem; }
+            .hero-stat-value { font-size: 2rem; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .footer-bottom { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -649,13 +578,12 @@
         <div class="navbar-content">
             <a href="#" class="logo-link">
                 <img src="logo.png" alt="SQLite-4.0" class="logo-img">
-                <span class="logo-text">SQLite-4.0<span class="logo-version">.0</span></span>
             </a>
             <ul class="nav-links">
                 <li><a href="#features" class="nav-link">Features</a></li>
                 <li><a href="#quickstart" class="nav-link">Quick Start</a></li>
-                <li><a href="#docs" class="nav-link">Docs</a></li>
-                <li><a href="#comparison" class="nav-link">Compare</a></li>
+                <li><a href="wiki.html" class="nav-link">Wiki</a></li>
+                <li><a href="api.html" class="nav-link">API Reference</a></li>
             </ul>
             <a href="https://github.com/KatsumaAI/SQLite-4.0" class="nav-cta">Get Started</a>
         </div>
@@ -713,7 +641,12 @@
             </div>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Encryption at Rest</h3>
                     <p class="feature-description">
                         AES-256-GCM encryption protects your data. Every byte is encrypted with 
@@ -721,7 +654,11 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">TLS Network Security</h3>
                     <p class="feature-description">
                         Secure TCP/TLS connections for distributed deployments. IP allowlisting 
@@ -729,7 +666,14 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">👥</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Role-Based Access</h3>
                     <p class="feature-description">
                         User authentication with admin, operator, readonly, and viewer roles. 
@@ -737,7 +681,11 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Query Builder</h3>
                     <p class="feature-description">
                         Chainable API for building queries with full TypeScript support. 
@@ -745,7 +693,14 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="17 1 21 5 17 9"/>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                            <polyline points="7 23 3 19 7 15"/>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Replication</h3>
                     <p class="feature-description">
                         Master-slave replication with real-time sync. Auto-reconnection 
@@ -753,7 +708,11 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">💾</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Encrypted Backups</h3>
                     <p class="feature-description">
                         Compress and encrypt backups with scheduled support. Retention 
@@ -761,7 +720,11 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10M12 20V4M6 20v-6"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Connection Pooling</h3>
                     <p class="feature-description">
                         Efficient connection management with min/max limits. Auto-reaping 
@@ -769,7 +732,12 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📝</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Migrations</h3>
                     <p class="feature-description">
                         Version-controlled schema changes with rollback support. Batch 
@@ -777,8 +745,12 @@
                     </p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3 class="feature-title">Events & Metrics</h3>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Events and Metrics</h3>
                     <p class="feature-description">
                         Hook into queries, transactions, and auth events. Prometheus-compatible 
                         metrics for complete observability.
@@ -814,32 +786,47 @@
         </div>
     </section>
     
-    <section id="docs">
+    <section>
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Documentation</span>
-                <h2 class="section-title">Full API Reference</h2>
+                <h2 class="section-title">Complete Resources</h2>
                 <p class="section-description">
-                    Comprehensive guides and API documentation
+                    Everything you need to get started and go deep
                 </p>
             </div>
             <div class="features-grid">
-                <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki" class="feature-card" style="text-decoration: none;">
-                    <div class="feature-icon">📚</div>
-                    <h3 class="feature-title">Wiki & Guides</h3>
+                <a href="wiki.html" class="feature-card" style="text-decoration: none;">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Wiki and Guides</h3>
                     <p class="feature-description">
                         Step-by-step tutorials and in-depth guides for all features.
                     </p>
                 </a>
-                <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/API-Reference" class="feature-card" style="text-decoration: none;">
-                    <div class="feature-icon">📖</div>
+                <a href="api.html" class="feature-card" style="text-decoration: none;">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">API Reference</h3>
                     <p class="feature-description">
                         Complete API documentation with examples and TypeScript definitions.
                     </p>
                 </a>
                 <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/Examples" class="feature-card" style="text-decoration: none;">
-                    <div class="feature-icon">💡</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polygon points="10 8 16 12 10 16 10 8"/>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Examples</h3>
                     <p class="feature-description">
                         Real-world examples and use cases to help you get started quickly.
@@ -854,7 +841,6 @@
             <div class="footer-brand">
                 <div class="footer-logo">
                     <img src="logo.png" alt="SQLite-4.0">
-                    <span>SQLite-4.0</span>
                 </div>
                 <p class="footer-description">
                     A secure, lightweight embedded database for modern Node.js applications. 
@@ -864,10 +850,9 @@
             <div>
                 <h4 class="footer-title">Resources</h4>
                 <ul class="footer-links">
-                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/wiki" class="footer-link">Documentation</a></li>
-                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/API-Reference" class="footer-link">API Reference</a></li>
+                    <li><a href="wiki.html" class="footer-link">Wiki</a></li>
+                    <li><a href="api.html" class="footer-link">API Reference</a></li>
                     <li><a href="https://github.com/KatsumaAI/SQLite-4.0/issues" class="footer-link">Issues</a></li>
-                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/releases" class="footer-link">Releases</a></li>
                 </ul>
             </div>
             <div>
@@ -876,7 +861,6 @@
                     <li><a href="https://github.com/KatsumaAI/SQLite-4.0/discussions" class="footer-link">Discussions</a></li>
                     <li><a href="https://github.com/KatsumaAI/SQLite-4.0/blob/main/CONTRIBUTING.md" class="footer-link">Contributing</a></li>
                     <li><a href="https://github.com/KatsumaAI/SQLite-4.0/blob/main/CHANGELOG.md" class="footer-link">Changelog</a></li>
-                    <li><a href="https://discord.gg/katsuma" class="footer-link">Discord</a></li>
                 </ul>
             </div>
             <div>
@@ -888,18 +872,11 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p class="footer-copyright">
-                © 2025 SQLite-4.0. Built with ❤️ by Katsuma
-            </p>
-            <div class="footer-social">
-                <a href="https://github.com/KatsumaAI/SQLite-4.0">GitHub</a>
-                <a href="https://twitter.com/katsuma_ai">Twitter</a>
-            </div>
+            <p class="footer-copyright">2025 SQLite-4.0. Built by Katsuma.</p>
         </div>
     </footer>
     
     <script>
-        // Tab switching functionality
         const codeTabs = document.querySelectorAll('.code-tab');
         const codeContent = document.getElementById('code-content');
         
@@ -915,54 +892,9 @@
 &nbsp;&nbsp;<span class="string">dbPath:</span> <span class="string">'./data/app.db'</span>,<br>
 &nbsp;&nbsp;<span class="string">key:</span> <span class="string">'your-secret-key'</span><br>
 });<br><br>
-<span class="comment">// Execute queries</span><br>
 <span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)\`</span>);<br>
 <span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`INSERT INTO users (name) VALUES ('Alice')\`</span>);<br>
 <span class="keyword">const</span> <span class="variable">result</span> = <span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`SELECT * FROM users\`</span>);<br>
 <span class="function">console</span>.<span class="method">log</span>(<span class="variable">result</span>.rows);`,
             
             builder: `<span class="comment">// Chainable query builder</span><br>
-<span class="keyword">const</span> <span class="variable">users</span> = <span class="keyword">await</span> <span class="variable">db</span><br>
-&nbsp;&nbsp;.<span class="method">select</span>(<span class="string">'name'</span>, <span class="string">'email'</span>)<br>
-&nbsp;&nbsp;.<span class="method">from</span>(<span class="string">'users'</span>)<br>
-&nbsp;&nbsp;.<span class="method">where</span>(<span class="string">'status'</span>, <span class="string">'active'</span>)<br>
-&nbsp;&nbsp;.<span class="method">orderBy</span>(<span class="string">'created_at'</span>, <span class="string">'DESC'</span>)<br>
-&nbsp;&nbsp;.<span class="method">limit</span>(10)<br>
-&nbsp;&nbsp;.<span class="method">all</span>();`,
-            
-            schema: `<span class="comment">// Programmatic schema creation</span><br>
-<span class="variable">db</span>.schema.<span class="method">create</span>(<span class="string">'posts'</span>, (<span class="variable">table</span>) => {<br>
-&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">increments</span>(<span class="string">'id'</span>);<br>
-&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">string</span>(<span class="string">'title'</span>, 255);<br>
-&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">text</span>(<span class="string">'content'</span>);<br>
-&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">integer</span>(<span class="string">'user_id'</span>).<span class="method">references</span>(<span class="string">'users'</span>, <span class="string">'id'</span>);<br>
-&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">timestamp</span>(<span class="string">'created_at'</span>);<br>
-});`
-        };
-        
-        codeTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Update active state
-                codeTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Update code content
-                codeContent.innerHTML = codeSnippets[tab.dataset.tab];
-            });
-        });
-        
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    </script>
-</body>
-</html>

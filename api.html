@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - SQLite-4.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0d5f59;
+            --accent: #2dd4bf;
+            --bg: #0a0f1a;
+            --bg-card: #111827;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --code-bg: #0d1117;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            text-decoration: none;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--bg-card);
+        }
+        
+        .nav-link.active {
+            color: var(--accent);
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+        
+        .api-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .api-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .api-header p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .api-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 6rem;
+        }
+        
+        .api-section h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .api-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+        }
+        
+        .api-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .api-class {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .api-class h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .api-class p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .api-methods {
+            margin-top: 1.5rem;
+        }
+        
+        .api-method {
+            border-top: 1px solid var(--border);
+            padding: 1.25rem 0;
+        }
+        
+        .api-method:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+        
+        .method-signature {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .method-signature .method-name {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        
+        .method-signature .method-params {
+            color: var(--text-secondary);
+        }
+        
+        .method-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .method-returns {
+            font-size: 0.9rem;
+        }
+        
+        .method-returns strong {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .method-returns span {
+            color: var(--text-secondary);
+        }
+        
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.8;
+            margin: 1rem 0;
+        }
+        
+        .code-block code { color: var(--text); }
+        .code-block .comment { color: var(--text-muted); font-style: italic; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #4ade80; }
+        .code-block .variable { color: #f472b6; }
+        .code-block .function { color: #60a5fa; }
+        .code-block .method { color: #2dd4bf; }
+        .code-block .property { color: #fbbf24; }
+        
+        .param-list {
+            margin: 1rem 0;
+        }
+        
+        .param-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .param-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: #fbbf24;
+            min-width: 150px;
+        }
+        
+        .param-type {
+            color: #c084fc;
+            min-width: 100px;
+        }
+        
+        .param-desc {
+            color: var(--text-secondary);
+        }
+        
+        .param-optional {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .param-item { flex-direction: column; gap: 0.25rem; }
+            .param-name, .param-type { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo-link">
+                <img src="logo.png" alt="SQLite-4.0" class="logo-img">
+                <span class="logo-text">SQLite-4.0</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="wiki.html" class="nav-link">Wiki</a></li>
+                <li><a href="api.html" class="nav-link active">API</a></li>
+                <li><a href="https://github.com/KatsumaAI/SQLite-4.0" class="nav-link">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="api-header">
+            <h1>API Reference</h1>
+            <p>Complete API documentation for SQLite-4.0 including all modules, methods, and TypeScript definitions.</p>
+        </div>
+        
+        <div class="api-section" id="sqlite4">
+            <h2>SQLite4 (Main Class)</h2>
+            <p>The main database class for creating and managing SQLite-4.0 databases.</p>
+            
+            <div class="api-class">
+                <h4>new SQLite4(options)</h4>
+                <p>Creates a new SQLite-4.0 database instance.</p>
+                
+                <div class="param-list">
+                    <div class="param-item">
+                        <span class="param-name">dbPath</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">Path to database file, or ':memory:' for in-memory database</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">key</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">Encryption key for AES-256-GCM encryption</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">readonly</span>
+                        <span class="param-type">boolean</span>
+                        <span class="param-desc">Open database in read-only mode (default: false)</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">timeout</span>
+                        <span class="param-type">number</span>
+                        <span class="param-desc">Lock timeout in milliseconds (default: 5000)</span>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+                    <code>
+<span class="keyword">const</span> <span class="variable">db</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>({<br>
+&nbsp;&nbsp;<span class="string">dbPath:</span> <span class="string">'./data/app.db'</span>,<br>
+&nbsp;&nbsp;<span class="string">key:</span> process.env.<span class="variable">DB_KEY</span><br>
+});
+                    </code>
+                </div>
+                
+                <div class="api-methods">
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">execute(sql, params?)</span>
+                        </div>
+                        <p class="method-description">Executes a SQL statement and returns the result.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ success, rows, rowCount, columns, error, lastInsertId, changes }</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">query(sql, params?)</span>
+                        </div>
+                        <p class="method-description">Executes a SELECT query and returns rows.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ success, rows, rowCount, columns }</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">all(sql, params?)</span>
+                        </div>
+                        <p class="method-description">Executes query and returns all rows as an array.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>any[]</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">get(sql, params?)</span>
+                        </div>
+                        <p class="method-description">Executes query and returns the first row.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>any | undefined</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">run(sql, params?)</span>
+                        </div>
+                        <p class="method-description">Executes INSERT/UPDATE/DELETE and returns metadata.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ lastInsertId, changes }</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">prepare(sql)</span>
+                        </div>
+                        <p class="method-description">Creates a prepared statement for reuse.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>Statement</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">begin()</span> / <span class="method-name">commit()</span> / <span class="method-name">rollback()</span>
+                        </div>
+                        <p class="method-description">Transaction control methods.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>boolean</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">addUser(username, password, role)</span>
+                        </div>
+                        <p class="method-description">Adds a new user with specified role.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">authenticate(username, password)</span>
+                        </div>
+                        <p class="method-description">Authenticates a user and returns user object.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ username, role } | null</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">backup(destination, options)</span>
+                        </div>
+                        <p class="method-description">Creates an encrypted, compressed backup.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">close()</span>
+                        </div>
+                        <p class="method-description">Closes the database connection.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="api-section" id="querybuilder">
+            <h2>QueryBuilder</h2>
+            <p>Chainable API for building type-safe SQL queries.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="keyword">const</span> <span class="variable">users</span> = <span class="keyword">await</span> <span class="variable">db</span><br>
+&nbsp;&nbsp;.<span class="method">select</span>(<span class="string">'id'</span>, <span class="string">'name'</span>, <span class="string">'email'</span>)<br>
+&nbsp;&nbsp;.<span class="method">from</span>(<span class="string">'users'</span>)<br>
+&nbsp;&nbsp;.<span class="method">where</span>(<span class="string">'status'</span>, <span class="string">'active'</span>)<br>
+&nbsp;&nbsp;.<span class="method">where</span>(<span class="string">'role'</span>, <span class="string">'admin'</span>)<br>
+&nbsp;&nbsp;.<span class="method">orderBy</span>(<span class="string">'created_at'</span>, <span class="string">'DESC'</span>)<br>
+&nbsp;&nbsp;.<span class="method">limit</span>(10)<br>
+&nbsp;&nbsp;.<span class="method">all</span>();
+                </code>
+            </div>
+            
+            <div class="api-class">
+                <h4>Methods</h4>
+                
+                <div class="api-methods">
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">select(...columns)</span>
+                        </div>
+                        <p class="method-description">Specifies columns to select.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">distinct()</span>
+                        </div>
+                        <p class="method-description">Adds DISTINCT keyword.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">from(table)</span>
+                        </div>
+                        <p class="method-description">Specifies the source table.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">join(table, condition, type)</span>
+                        </div>
+                        <p class="method-description">Adds JOIN clause (type: INNER, LEFT, RIGHT, OUTER).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">where(column, operator, value)</span>
+                        </div>
+                        <p class="method-description">Adds WHERE condition with AND.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">orWhere(column, operator, value)</span>
+                        </div>
+                        <p class="method-description">Adds WHERE condition with OR.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">whereIn(column, values)</span>
+                        </div>
+                        <p class="method-description">Adds WHERE column IN (...) condition.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">groupBy(...columns)</span>
+                        </div>
+                        <p class="method-description">Adds GROUP BY clause.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">having(column, operator, value)</span>
+                        </div>
+                        <p class="method-description">Adds HAVING condition.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">orderBy(column, direction)</span>
+                        </div>
+                        <p class="method-description">Adds ORDER BY clause (direction: ASC, DESC).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">limit(value)</span>
+                        </div>
+                        <p class="method-description">Adds LIMIT clause.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">offset(value)</span>
+                        </div>
+                        <p class="method-description">Adds OFFSET clause.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">set(data)</span>
+                        </div>
+                        <p class="method-description">Sets columns for UPDATE (switches to UPDATE mode).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">values(data)</span>
+                        </div>
+                        <p class="method-description">Sets values for INSERT (switches to INSERT mode).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">returning(...columns)</span>
+                        </div>
+                        <p class="method-description">Adds RETURNING clause (PostgreSQL-style).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">toSQL()</span>
+                        </div>
+                        <p class="method-description">Returns compiled SQL and parameters.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ sql: string, params: any[] }</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">execute()</span>
+                        </div>
+                        <p class="method-description">Executes the query.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">first()</span>
+                        </div>
+                        <p class="method-description">Executes and returns first result.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">all()</span>
+                        </div>
+                        <p class="method-description">Executes and returns all results.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">count()</span>
+                        </div>
+                        <p class="method-description">Executes COUNT query and returns count.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="api-section" id="schemabuilder">
+            <h2>SchemaBuilder</h2>
+            <p>Programmatic table creation with chainable API.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="variable">db</span>.schema.<span class="method">create</span>(<span class="string">'posts'</span>, (<span class="variable">table</span>) => {<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">increments</span>(<span class="string">'id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">string</span>(<span class="string">'title'</span>, 255);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">text</span>(<span class="string">'content'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">integer</span>(<span class="string">'user_id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">foreignKey</span>(<span class="string">'user_id'</span>, { <span class="property">table:</span> <span class="string">'users'</span>, <span class="property">column:</span> <span class="string">'id'</span> });<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">timestamp</span>(<span class="string">'created_at'</span>);<br>
+});
+                </code>
+            </div>
+            
+            <div class="api-class">
+                <h4>Column Methods</h4>
+                
+                <div class="api-methods">
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">increments(name)</span>
+                        </div>
+                        <p class="method-description">Auto-incrementing integer primary key.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">string(name, length)</span>
+                        </div>
+                        <p class="method-description">VARCHAR column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">text(name)</span>
+                        </div>
+                        <p class="method-description">TEXT column for long strings.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">integer(name)</span>
+                        </div>
+                        <p class="method-description">INTEGER column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">bigInteger(name)</span>
+                        </div>
+                        <p class="method-description">BIGINT column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">float(name)</span>
+                        </div>
+                        <p class="method-description">REAL/FLOAT column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">boolean(name)</span>
+                        </div>
+                        <p class="method-description">BOOLEAN column (stored as INTEGER).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">date(name)</span>
+                        </div>
+                        <p class="method-description">DATE column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">datetime(name)</span>
+                        </div>
+                        <p class="method-description">DATETIME column.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">json(name)</span>
+                        </div>
+                        <p class="method-description">JSON column (stored as TEXT).</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">blob(name)</span>
+                        </div>
+                        <p class="method-description">BLOB column for binary data.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="api-class">
+                <h4>Column Modifiers</h4>
+                
+                <div class="api-methods">
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">primaryKey()</span>
+                        </div>
+                        <p class="method-description">Set as primary key.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">autoIncrement()</span>
+                        </div>
+                        <p class="method-description">Enable auto-increment.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">notNull()</span>
+                        </div>
+                        <p class="method-description">Add NOT NULL constraint.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">unique()</span>
+                        </div>
+                        <p class="method-description">Add UNIQUE constraint.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">default(value)</span>
+                        </div>
+                        <p class="method-description">Set default value.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">references(table, column)</span>
+                        </div>
+                        <p class="method-description">Add foreign key reference.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="api-section" id="migration">
+            <h2>Migration</h2>
+            <p>Version-controlled schema migrations.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="comment">// Create migration</span><br>
+<span class="variable">db</span>.migration.<span class="method">create</span>(<span class="string">'create_users'</span>,<br>
+&nbsp;&nbsp;<span class="string">'CREATE TABLE users...'</span>,<br>
+&nbsp;&nbsp;<span class="string">'DROP TABLE users'</span><br>
+);<br><br>
+<span class="comment">// Run migrations</span><br>
+<span class="keyword">await</span> <span class="variable">db</span>.migration.<span class="method">migrate</span>();<br><br>
+<span class="comment">// Rollback</span><br>
+<span class="keyword">await</span> <span class="variable">db</span>.migration.<span class="method">rollback</span>();
+                </code>
+            </div>
+            
+            <div class="api-class">
+                <h4>Methods</h4>
+                
+                <div class="api-methods">
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">create(name, upSQL, downSQL)</span>
+                        </div>
+                        <p class="method-description">Creates a new migration file.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">migrate(options)</span>
+                        </div>
+                        <p class="method-description">Runs pending migrations (direction: 'up' | 'down').</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">rollback()</span>
+                        </div>
+                        <p class="method-description">Rolls back the last batch of migrations.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">fresh()</span>
+                        </div>
+                        <p class="method-description">Drops all tables and re-runs all migrations.</p>
+                    </div>
+                    
+                    <div class="api-method">
+                        <div class="method-signature">
+                            <span class="method-name">getStatus()</span>
+                        </div>
+                        <p class="method-description">Returns migration status.</p>
+                        <div class="method-returns">
+                            <strong>Returns:</strong> <span>{ executed, pending, currentBatch, lastExecuted }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="api-section" id="pool">
+            <h2>ConnectionPool</h2>
+            <p>Efficient connection management with pooling.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="keyword">const</span> <span class="variable">pool</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>.<span class="function">ConnectionPool</span>({<br>
+&nbsp;&nbsp;<span class="string">min:</span> 2,<br>
+&nbsp;&nbsp;<span class="string">max:</span> 10,<br>
+&nbsp;&nbsp;<span class="string">acquireTimeout:</span> 30000,<br>
+&nbsp;&nbsp;<span class="string">idleTimeout:</span> 60000<br>
+});<br><br>
+<span class="keyword">const</span> <span class="variable">conn</span> = <span class="keyword">await</span> <span class="variable">pool</span>.<span class="method">acquire</span>();<br>
+<span class="comment">// Use connection...</span><br>
+<span class="variable">pool</span>.<span class="method">release</span>(<span class="variable">conn</span>);
+                </code>
+            </div>
+        </div>
+        
+        <div class="api-section" id="metrics">
+            <h2>Metrics</h2>
+            <p>Prometheus-compatible metrics collection.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="keyword">const</span> <span class="variable">metrics</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>.<span class="function">Metrics</span>({<br>
+&nbsp;&nbsp;<span class="string">prefix:</span> <span class="string">'sqlite4_'</span>,<br>
+&nbsp;&nbsp;<span class="string">exportDir:</span> <span class="string">'./metrics'</span><br>
+});<br><br>
+<span class="comment">// Track query</span><br>
+<span class="keyword">const</span> <span class="variable">tracker</span> = <span class="variable">metrics</span>.<span class="method">trackQuery</span>();<br>
+<span class="keyword">const</span> <span class="variable">t</span> = <span class="variable">tracker</span>.<span class="method">start</span>(<span class="string">'SELECT'</span>);<br>
+<span class="comment">// Execute query...</span><br>
+<span class="variable">t</span>.<span class="method">done</span>();<br><br>
+<span class="comment">// Export metrics</span><br>
+<span class="function">app</span>.<span class="method">get</span>(<span class="string">'/metrics'</span>, <span class="variable">metrics</span>.httpHandler());
+                </code>
+            </div>
+        </div>
+        
+        <div class="api-section" id="events">
+            <h2>DatabaseEvents</h2>
+            <p>Event system for hooks and logging.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="keyword">const</span> <span class="variable">events</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>.<span class="function">DatabaseEvents</span>(<span class="variable">db</span>);<br><br>
+<span class="variable">events</span>.<span class="method">on</span>(<span class="string">'query'</span>, (<span class="variable">data</span>) => {<br>
+&nbsp;&nbsp;<span class="function">console</span>.<span class="method">log</span>(<span class="variable">data</span>.sql, <span class="variable">data</span>.duration + <span class="string">'ms'</span>);<br>
+});<br><br>
+<span class="variable">events</span>.<span class="method">on</span>(<span class="string">'authSuccess'</span>, (<span class="variable">data</span>) => {<br>
+&nbsp;&nbsp;<span class="function">console</span>.<span class="method">log</span>(<span class="string">'User logged in:'</span>, <span class="variable">data</span>.user);<br>
+});
+                </code>
+            </div>
+        </div>
+        
+        <div class="api-section" id="cache">
+            <h2>Cache</h2>
+            <p>LRU cache with TTL support.</p>
+            
+            <div class="code-block">
+                <code>
+<span class="keyword">const</span> <span class="variable">

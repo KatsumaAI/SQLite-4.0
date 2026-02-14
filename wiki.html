@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki - SQLite-4.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0d5f59;
+            --accent: #2dd4bf;
+            --accent-glow: rgba(45, 212, 191, 0.3);
+            --bg: #0a0f1a;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2332;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --border-light: #334155;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            text-decoration: none;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--bg-card);
+        }
+        
+        .nav-link.active {
+            color: var(--accent);
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+        
+        .wiki-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 6rem;
+            height: fit-content;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .sidebar-links {
+            list-style: none;
+        }
+        
+        .sidebar-link {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            color: var(--accent);
+        }
+        
+        .sidebar-link.active {
+            color: var(--accent);
+        }
+        
+        .content {
+            min-width: 0;
+        }
+        
+        .wiki-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 6rem;
+        }
+        
+        .wiki-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .wiki-section h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .wiki-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+        }
+        
+        .wiki-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .wiki-section ul, .wiki-section ol {
+            color: var(--text-secondary);
+            margin: 1rem 0 1rem 1.5rem;
+        }
+        
+        .wiki-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin: 1.5rem 0;
+        }
+        
+        .code-block code {
+            color: var(--text);
+        }
+        
+        .code-block .comment { color: var(--text-muted); font-style: italic; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #4ade80; }
+        .code-block .function { color: #60a5fa; }
+        .code-block .variable { color: #f472b6; }
+        .code-block .method { color: #2dd4bf; }
+        
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .info-box.warning {
+            border-color: #f59e0b;
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            font-weight: 600;
+            background: var(--bg-card);
+        }
+        
+        td {
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .wiki-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo-link">
+                <img src="logo.png" alt="SQLite-4.0" class="logo-img">
+                <span class="logo-text">SQLite-4.0</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="wiki.html" class="nav-link active">Wiki</a></li>
+                <li><a href="api.html" class="nav-link">API</a></li>
+                <li><a href="https://github.com/KatsumaAI/SQLite-4.0" class="nav-link">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="wiki-layout">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <ul class="sidebar-links">
+                        <li><a href="#introduction" class="sidebar-link">Introduction</a></li>
+                        <li><a href="#installation" class="sidebar-link">Installation</a></li>
+                        <li><a href="#quick-start" class="sidebar-link">Quick Start</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <ul class="sidebar-links">
+                        <li><a href="#encryption" class="sidebar-link">Encryption</a></li>
+                        <li><a href="#authentication" class="sidebar-link">Authentication</a></li>
+                        <li><a href="#permissions" class="sidebar-link">Permissions</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Features</div>
+                    <ul class="sidebar-links">
+                        <li><a href="#query-builder" class="sidebar-link">Query Builder</a></li>
+                        <li><a href="#schema-builder" class="sidebar-link">Schema Builder</a></li>
+                        <li><a href="#migrations" class="sidebar-link">Migrations</a></li>
+                        <li><a href="#replication" class="sidebar-link">Replication</a></li>
+                        <li><a href="#backups" class="sidebar-link">Backups</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Operations</div>
+                    <ul class="sidebar-links">
+                        <li><a href="#docker" class="sidebar-link">Docker</a></li>
+                        <li><a href="#monitoring" class="sidebar-link">Monitoring</a></li>
+                    </ul>
+                </div>
+            </aside>
+            
+            <main class="content">
+                <div class="wiki-section" id="introduction">
+                    <h1>Introduction</h1>
+                    <p>SQLite-4.0 is a secure embedded SQL database for modern Node.js applications. It provides enterprise-grade security features including AES-256-GCM encryption, role-based access control, and comprehensive observability tools.</p>
+                    
+                    <div class="info-box">
+                        <div class="info-box-title">Key Features</div>
+                        <p>Zero dependencies, full encryption, chainable APIs, TypeScript support, and enterprise features like replication and monitoring.</p>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="installation">
+                    <h2>Installation</h2>
+                    <p>Install SQLite-4.0 via npm or clone from GitHub:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment"># Via npm</span><br>
+<span class="keyword">npm</span> install sqlite4<br><br>
+<span class="comment"># From GitHub</span><br>
+<span class="keyword">git</span> clone https://github.com/KatsumaAI/SQLite-4.0.git<br>
+<span class="keyword">cd</span> SQLite-4.0 && npm install
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="quick-start">
+                    <h2>Quick Start</h2>
+                    <p>Get started with a basic database instance:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="keyword">const</span> <span class="variable">SQLite4</span> = <span class="keyword">require</span>(<span class="string">'sqlite4'</span>);<br><br>
+<span class="comment">// Create database with encryption</span><br>
+<span class="keyword">const</span> <span class="variable">db</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>({<br>
+&nbsp;&nbsp;<span class="string">dbPath:</span> <span class="string">'./data/app.db'</span>,<br>
+&nbsp;&nbsp;<span class="string">key:</span> <span class="string">'your-secret-key'</span><br>
+});<br><br>
+<span class="comment">// Execute queries</span><br>
+<span class="variable">db</span>.<span class="method">execute</span>(<span class="string">`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)`</span>);<br>
+<span class="variable">db</span>.<span class="method">execute</span>(<span class="string">`INSERT INTO users (name) VALUES ('Alice')`</span>);<br>
+<span class="keyword">const</span> <span class="variable">result</span> = <span class="variable">db</span>.<span class="method">execute</span>(<span class="string">`SELECT * FROM users`</span>);<br>
+<span class="function">console</span>.<span class="method">log</span>(<span class="variable">result</span>.rows);
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="encryption">
+                    <h2>Encryption</h2>
+                    <p>SQLite-4.0 uses AES-256-GCM encryption for data at rest. All data is encrypted when the database key is provided.</p>
+                    
+                    <h3>Encryption Key</h3>
+                    <p>The encryption key should be 32 characters or longer for optimal security:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="keyword">const</span> <span class="variable">db</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>({<br>
+&nbsp;&nbsp;<span class="string">dbPath:</span> <span class="string">'./data/app.db'</span>,<br>
+&nbsp;&nbsp;<span class="string">key:</span> process.env.<span class="variable">DB_KEY</span><br>
+});
+                        </code>
+                    </div>
+                    
+                    <div class="info-box warning">
+                        <div class="info-box-title">Security Note</div>
+                        <p>Never commit your encryption key to version control. Use environment variables or a secure secrets manager.</p>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="authentication">
+                    <h2>Authentication</h2>
+                    <p>SQLite-4.0 supports user authentication with role-based access control.</p>
+                    
+                    <h3>Adding Users</h3>
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Add users with roles</span><br>
+<span class="variable">db</span>.<span class="method">addUser</span>(<span class="string">'admin'</span>, <span class="string">'securePassword123'</span>, <span class="string">'admin'</span>);<br>
+<span class="variable">db</span>.<span class="method">addUser</span>(<span class="string">'readonly'</span>, <span class="string">'readonlyPass'</span>, <span class="string">'readonly'</span>);
+                        </code>
+                    </div>
+                    
+                    <h3>Authenticating</h3>
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Authenticate user</span><br>
+<span class="keyword">const</span> <span class="variable">user</span> = <span class="variable">db</span>.<span class="method">authenticate</span>(<span class="string">'admin'</span>, <span class="string">'securePassword123'</span>);<br>
+<span class="keyword">if</span> (<span class="variable">user</span>) {<br>
+&nbsp;&nbsp;<span class="function">console</span>.<span class="method">log</span>(<span class="string">`Authenticated as ${user.role}`</span>);<br>
+}
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="permissions">
+                    <h2>Permissions</h2>
+                    <p>SQLite-4.0 uses a role-based permission system:</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Permissions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>admin</td>
+                                <td>SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, GRANT, REVOKE</td>
+                            </tr>
+                            <tr>
+                                <td>operator</td>
+                                <td>SELECT, INSERT, UPDATE, DELETE</td>
+                            </tr>
+                            <tr>
+                                <td>readonly</td>
+                                <td>SELECT only</td>
+                            </tr>
+                            <tr>
+                                <td>viewer</td>
+                                <td>SELECT only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="wiki-section" id="query-builder">
+                    <h2>Query Builder</h2>
+                    <p>Use the chainable query builder for type-safe queries:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Chainable query builder</span><br>
+<span class="keyword">const</span> <span class="variable">users</span> = <span class="keyword">await</span> <span class="variable">db</span><br>
+&nbsp;&nbsp;.<span class="method">select</span>(<span class="string">'name'</span>, <span class="string">'email'</span>)<br>
+&nbsp;&nbsp;.<span class="method">from</span>(<span class="string">'users'</span>)<br>
+&nbsp;&nbsp;.<span class="method">where</span>(<span class="string">'status'</span>, <span class="string">'active'</span>)<br>
+&nbsp;&nbsp;.<span class="method">orderBy</span>(<span class="string">'created_at'</span>, <span class="string">'DESC'</span>)<br>
+&nbsp;&nbsp;.<span class="method">limit</span>(10)<br>
+&nbsp;&nbsp;.<span class="method">all</span>();
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="schema-builder">
+                    <h2>Schema Builder</h2>
+                    <p>Create tables programmatically with the schema builder:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Programmatic schema creation</span><br>
+<span class="variable">db</span>.schema.<span class="method">create</span>(<span class="string">'posts'</span>, (<span class="variable">table</span>) => {<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">increments</span>(<span class="string">'id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">string</span>(<span class="string">'title'</span>, 255);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">text</span>(<span class="string">'content'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">integer</span>(<span class="string">'user_id'</span>).<span class="method">references</span>(<span class="string">'users'</span>, <span class="string">'id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">timestamp</span>(<span class="string">'created_at'</span>);<br>
+});
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="migrations">
+                    <h2>Migrations</h2>
+                    <p>Manage database schema changes with version-controlled migrations:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Create a migration file</span><br>
+<span class="variable">db</span>.migration.<span class="method">create</span>(<span class="string">'add_users_table'</span>, <span class="string">'CREATE TABLE users...'</span>, <span class="string">'DROP TABLE users'</span>);<br><br>
+<span class="comment">// Run migrations</span><br>
+<span class="keyword">await</span> <span class="variable">db</span>.migration.<span class="method">migrate</span>();<br><br>
+<span class="comment">// Rollback last batch</span><br>
+<span class="keyword">await</span> <span class="variable">db</span>.migration.<span class="method">rollback</span>();
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="replication">
+                    <h2>Replication</h2>
+                    <p>Set up master-slave replication for high availability:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="keyword">const</span> <span class="variable">replication</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>.<span class="function">Replication</span>({<br>
+&nbsp;&nbsp;<span class="string">master:</span> <span class="string">'./data/master.db'</span>,<br>
+&nbsp;&nbsp;<span class="string">slaves:</span> [<span class="string">'./data/slave1.db'</span>, <span class="string">'./data/slave2.db'</span>],<br>
+&nbsp;&nbsp;<span class="string">syncInterval:</span> 5000<br>
+});<br><br>
+<span class="variable">replication</span>.<span class="method">start</span>();
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="backups">
+                    <h2>Backups</h2>
+                    <p>Create encrypted, compressed backups:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment">// Create backup</span><br>
+<span class="keyword">await</span> <span class="variable">db</span>.<span class="method">backup</span>(<span class="string">'./backups/app_backup'</span>, {<br>
+&nbsp;&nbsp;<span class="string">compress:</span> <span class="keyword">true</span>,<br>
+&nbsp;&nbsp;<span class="string">encrypt:</span> <span class="keyword">true</span>,<br>
+&nbsp;&nbsp;<span class="string">password:</span> process.env.<span class="variable">BACKUP_PASSWORD</span><br>
+});
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="docker">
+                    <h2>Docker</h2>
+                    <p>Run SQLite-4.0 in Docker:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="comment"># Basic container</span><br>
+<span class="keyword">docker</span> compose up -d<br><br>
+<span class="comment"># With TLS</span><br>
+<span class="keyword">docker</span> compose -f docker-compose.tls.yml up -d<br><br>
+<span class="comment"># High availability</span><br>
+<span class="keyword">docker</span> compose -f docker-compose.ha.yml up -d
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="wiki-section" id="monitoring">
+                    <h2>Monitoring</h2>
+                    <p>SQLite-4.0 includes Prometheus-compatible metrics:</p>
+                    
+                    <div class="code-block">
+                        <code>
+<span class="keyword">const</span> <span class="variable">metrics</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>.<span class="function">Metrics</span>({<br>
+&nbsp;&nbsp;<span class="string">prefix:</span> <span class="string">'sqlite4_'</span>,<br>
+&nbsp;&nbsp;<span class="string">exportDir:</span> <span class="string">'./metrics'</span><br>
+});<br><br>
+<span class="comment">// In Express</span><br>
+<span class="function">app</span>.<span class="method">get</span>(<span class="string">'/metrics'</span>, <span class="variable">metrics</span>.httpHandler());
+                        </code>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
