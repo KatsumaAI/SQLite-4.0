@@ -562,3 +562,17 @@ class SQLite4 {
 }
 
 module.exports = SQLite4;
+
+// Export all modules
+SQLite4.SQLParser = require('./parser');
+SQLite4.ConnectionPool = require('./pool');
+SQLite4.QueryBuilder = require('./querybuilder');
+SQLite4.Migration = require('./migration');
+SQLite4.DatabaseEvents = require('./events');
+SQLite4.SchemaBuilder = require('./schema');
+SQLite4.Cache = require('./cache');
+SQLite4.FullTextSearch = require('./fts');
+SQLite4.Metrics = require('./metrics');
+
+// Version
+SQLite4.VERSION = '4.0.0';
