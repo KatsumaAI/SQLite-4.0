@@ -7,6 +7,7 @@
     "sqlite4": "src/sqlite4.js",
     "sqlite4-server": "src/server.js",
     "sqlite4-client": "src/client.js",
+    "sqlite4-cli": "src/cli.js",
     "sqlite4-admin": "src/admin.js",
     "sqlite4-backup": "src/backup.js",
     "sqlite4-replication": "src/replication.js"
@@ -15,7 +16,11 @@
     "start": "node src/server.js",
     "server": "node src/server.js",
     "client": "node src/client.js",
-    "test": "node -e \"const SQLite4 = require('./src/sqlite4.js'); const db = new SQLite4({dbPath: ':memory:'}); console.log(db.execute('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)')); console.log(db.execute(\\\"INSERT INTO test (name) VALUES ('hello')\\\")); console.log(db.execute('SELECT * FROM test'));\"",
+    "cli": "node src/cli.js",
+    "admin": "node src/admin.js",
+    "backup": "node src/backup.js",
+    "replication": "node src/replication.js",
+    "test": "node -e \"const SQLite4 = require('./src/sqlite4.js'); const db = new SQLite4({dbPath: ':memory:'}); console.log(db.execute('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)').success ? 'CREATE: OK' : 'FAIL'); console.log(db.execute('INSERT INTO test (name) VALUES (\\'test\\')').success ? 'INSERT: OK' : 'FAIL'); console.log(db.execute('SELECT * FROM test').rowCount === 1 ? 'SELECT: OK' : 'FAIL');\"",
     "security-setup": "bash security-configs/setup-security.sh"
   },
   "keywords": [

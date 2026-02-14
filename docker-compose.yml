@@ -1,0 +1,355 @@
+# SQLite-4.0 Docker Configuration
+
+## Quick Start
+
+```bash
+# Build the image
+docker build -t sqlite4:latest .
+
+# Run the server
+docker run -d \
+  --name sqlite4 \
+  -p 4444:4444 \
+  -p 8443:8443 \
+  -v sqlite4-data:/data \
+  -e SQLITE4_AUTH=1 \
+  -e SQLITE4_TLS=1 \
+  sqlite4:latest
+
+# Connect to the CLI
+docker exec -it sqlite4 sqlite4-cli
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SQLITE4_PORT` | 4444 | Server port |
+| `SQLITE4_ADMIN_PORT` | 8443 | Admin panel port |
+| `SQLITE4_AUTH` | 0 | Require authentication (0/1) |
+| `SQLITE4_TLS` | 0 | Enable TLS (0/1) |
+| `SQLITE4_DATADIR` | /data | Data directory |
+| `SQLITE4_LOGDIR` | /var/log/sqlite4 | Log directory |
+| `SQLITE4_KEY` | - | Encryption key |
+| `SQLITE4_ALLOWLIST` | - | Comma-separated IP allowlist |
+
+## Volumes
+
+| Volume | Description |
+|--------|-------------|
+| `/data` | Database files |
+| `/var/log/sqlite4` | Log files |
+| `/etc/sqlite4` | Configuration |
+
+## Docker Compose
+
+### Basic
+
+```yaml
+version: '3.8'
+
+services:
+  sqlite4:
+    image: sqlite4:latest
+    ports:
+      - "4444:4444"
+      - "8443:8443"
+    volumes:
+      - sqlite4-data:/data
+    environment:
+      - SQLITE4_AUTH=1
+```
+
+### With TLS and Authentication
+
+```yaml
+version: '3.8'
+
+services:
+  sqlite4:
+    image: sqlite4:latest
+    ports:
+      - "4444:4444"
+      - "8443:8443"
+    volumes:
+      - sqlite4-data:/data
+      - ./certs:/certs:ro
+    environment:
+      - SQLITE4_AUTH=1
+      - SQLITE4_TLS=1
+      - SQLITE4_CERT=/certs/server.crt
+      - SQLITE4_KEY=/certs/server.key
+    restart: unless-stopped
+
+volumes:
+  sqlite4-data:
+```
+
+### With Fail2Ban
+
+```yaml
+version: '3.8'
+
+services:
+  sqlite4:
+    image: sqlite4:latest
+    ports:
+      - "4444:4444"
+      - "8443:8443"
+    volumes:
+      - sqlite4-data:/data
+      - sqlite4-logs:/var/log/sqlite4
+    environment:
+      - SQLITE4_AUTH=1
+    restart: unless-stopped
+
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    network_mode: "service:sqlite4"
+    volumes:
+      - sqlite4-logs:/var/log/sqlite4:ro
+      - ./fail2ban-jail.local:/etc/fail2ban/jail.local:ro
+    restart: unless-stopped
+
+volumes:
+  sqlite4-data:
+  sqlite4-logs:
+```
+
+### High Availability
+
+```yaml
+version: '3.8'
+
+services:
+  sqlite4-master:
+    image: sqlite4:latest
+    ports:
+      - "4444:4444"
+    volumes:
+      - sqlite4-data:/data
+    environment:
+      - SQLITE4_ROLE=master
+      - SQLITE4_REPLICATION_KEY=secret
+    command: ["node", "src/server.js", "--port", "4444", "--replication"]
+
+  sqlite4-slave:
+    image: sqlite4:latest
+    ports:
+      - "4445:4444"
+    volumes:
+      - sqlite4-slave-data:/data
+    environment:
+      - SQLITE4_ROLE=slave
+      - SQLITE4_MASTER_HOST=sqlite4-master
+      - SQLITE4_REPLICATION_KEY=secret
+    depends_on:
+      - sqlite4-master
+    command: ["node", "src/replication.js", "slave", "sqlite4-master", "4444"]
+
+volumes:
+  sqlite4-data:
+  sqlite4-slave-data:
+```
+
+## Configuration
+
+### Custom Configuration
+
+```bash
+# Create custom config
+docker run --rm -v $(pwd)/config.json:/etc/sqlite4/config.json:ro sqlite4:latest
+
+# Mount custom config
+docker run -v $(pwd)/config.json:/etc/sqlite4/config.json:ro sqlite4:latest
+```
+
+### Initialize with SQL Script
+
+```bash
+# Run init script on startup
+docker run -v $(pwd)/init.sql:/docker-entrypoint-initdb.d/init.sql:ro sqlite4:latest
+```
+
+## Networking
+
+### Internal Network Only
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build: ./app
+    network_mode: "service:sqlite4"
+    depends_on:
+      - sqlite4
+
+  sqlite4:
+    image: sqlite4:latest
+    expose:
+      - "4444"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+```
+
+### With Nginx Reverse Proxy
+
+```yaml
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - sqlite4
+
+  sqlite4:
+    image: sqlite4:latest
+    expose:
+      - "4444"
+      - "8443"
+
+networks:
+  default:
+    external:
+      name: nginx-network
+```
+
+## Health Check
+
+```yaml
+services:
+  sqlite4:
+    image: sqlite4:latest
+    healthcheck:
+      test: ["CMD", "sqlite4-cli", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+```
+
+## Backup
+
+### Automated Backups
+
+```yaml
+services:
+  sqlite4:
+    image: sqlite4:latest
+    volumes:
+      - sqlite4-data:/data
+      - ./backups:/backups
+    environment:
+      - SQLITE4_BACKUP_INTERVAL=3600
+      - SQLITE4_BACKUP_DIR=/backups
+```
+
+### Manual Backup
+
+```bash
+# Backup database
+docker exec sqlite4 sqlite4-backup backup /data/mydb.db /backups/mydb-$(date +%Y%m%d).bak
+
+# Restore database
+docker exec sqlite4 sqlite4-backup restore /backups/mydb-20240214.bak /data/mydb.db
+```
+
+## Security
+
+### Run as Non-Root User
+
+```dockerfile
+FROM sqlite4:latest
+
+# Create non-root user
+RUN addgroup -g 1000 sqlite4 && \
+    adduser -u 1000 -G sqlite4 -s /bin/sh -D sqlite4
+
+USER sqlite4
+```
+
+### Read-Only Root Filesystem
+
+```yaml
+services:
+  sqlite4:
+    image: sqlite4:latest
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run
+```
+
+## Monitoring
+
+### With Prometheus
+
+```yaml
+services:
+  sqlite4:
+    image: sqlite4:latest
+    ports:
+      - "4444:4444"
+      - "9090:9090"
+    environment:
+      - SQLITE4_PROMETHEUS=1
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+```
+
+## Examples
+
+### Development
+
+```bash
+# Quick development setup
+docker run -it \
+  --rm \
+  -p 4444:4444 \
+  -p 8443:8443 \
+  -v $(pwd)/data:/data \
+  sqlite4:latest
+```
+
+### Production
+
+```bash
+# Production-ready setup
+docker run -d \
+  --name sqlite4 \
+  -p 4444:4444 \
+  -p 8443:8443 \
+  -v sqlite4-data:/data \
+  -v sqlite4-logs:/var/log/sqlite4 \
+  -e SQLITE4_AUTH=1 \
+  -e SQLITE4_TLS=1 \
+  --restart unless-stopped \
+  sqlite4:latest
+```
+
+### Testing
+
+```bash
+# Run tests
+docker run --rm sqlite4:latest npm test
+
+# Run with specific configuration
+docker run --rm \
+  -e SQLITE4_AUTH=1 \
+  sqlite4:latest npm test
+```
