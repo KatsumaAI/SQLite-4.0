@@ -4,461 +4,965 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SQLite-4.0 - Secure Embedded Database</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0d5f59;
+            --accent: #2dd4bf;
+            --accent-glow: rgba(45, 212, 191, 0.3);
+            --bg: #0a0f1a;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2332;
+            --bg-gradient: linear-gradient(135deg, #0a0f1a 0%, #0f172a 50%, #0a0f1a 100%);
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --border-light: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        :root {
-            --primary: #0f766e;
-            --primary-dark: #0d5f59;
-            --bg: #0f172a;
-            --bg-card: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #2dd4bf;
-            --border: #334155;
+        html {
+            scroll-behavior: smooth;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.7;
+            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        header {
-            padding: 2rem 0;
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 26, 0.9);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
         
-        .header-content {
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
-        .logo {
+        .logo-link {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.875rem;
+            text-decoration: none;
         }
         
-        .logo img {
-            width: 64px;
-            height: 64px;
+        .logo-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
         }
         
-        .logo h1 {
-            font-size: 2rem;
+        .logo-link:hover .logo-img {
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--primary));
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .logo span {
+        .logo-version {
+            font-size: 0.75rem;
             color: var(--text-muted);
-            font-weight: 300;
+            font-weight: 400;
+            margin-left: 0.25rem;
         }
         
-        nav a {
-            color: var(--text-muted);
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
             text-decoration: none;
-            margin-left: 2rem;
-            transition: color 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
-        nav a:hover {
-            color: var(--accent);
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--bg-card);
         }
         
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+        
+        /* Hero Section */
         .hero {
-            padding: 6rem 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            max-width: 900px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         
-        .hero h2 {
-            font-size: 3.5rem;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
             margin-bottom: 1.5rem;
-            line-height: 1.2;
+            animation: fadeInUp 0.6s ease 0.1s both;
         }
         
-        .hero p {
+        .hero-title {
+            background: linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-description {
             font-size: 1.25rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 2rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            animation: fadeInUp 0.6s ease 0.2s both;
         }
         
-        .badges {
+        .hero-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
-            margin-bottom: 2rem;
-        }
-        
-        .badge {
-            background: var(--bg-card);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease 0.3s both;
         }
         
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             padding: 1rem 2rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
-            transition: all 0.2s;
-            margin: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
         }
         
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
         }
         
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(15, 118, 110, 0.4);
         }
         
-        .btn-outline {
-            background: transparent;
+        .btn-secondary {
+            background: var(--bg-card);
             color: var(--text);
             border: 1px solid var(--border);
         }
         
-        .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-light);
+            transform: translateY(-3px);
         }
         
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 5rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+            animation: fadeInUp 0.6s ease 0.4s both;
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        
+        .hero-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+        
+        .hero-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        /* Section Styles */
         section {
-            padding: 4rem 0;
+            padding: 6rem 2rem;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-tag {
+            display: inline-block;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.375rem 0.875rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
         }
         
         .section-title {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .feature {
-            background: var(--bg-card);
-            padding: 2rem;
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-        }
-        
-        .feature h3 {
-            font-size: 1.25rem;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
             margin-bottom: 1rem;
-            color: var(--accent);
         }
         
-        .feature p {
-            color: var(--text-muted);
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-light);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
         }
         
         .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
         }
         
-        .code {
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* Code Section */
+        .code-section {
             background: var(--bg-card);
-            padding: 2rem;
-            border-radius: 1rem;
-            overflow-x: auto;
-            margin: 2rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .code-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .code-tab {
+            background: transparent;
             border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .code code {
-            font-family: 'Monaco', 'Menlo', monospace;
-            color: var(--accent);
+        .code-tab:hover {
+            color: var(--text);
+            background: var(--bg-card-hover);
         }
         
-        .code .comment {
+        .code-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        
+        .code-block code {
+            color: var(--text);
+        }
+        
+        .code-block .comment {
             color: var(--text-muted);
+            font-style: italic;
         }
         
-        .code .keyword {
+        .code-block .keyword {
             color: #c084fc;
         }
         
-        .code .string {
+        .code-block .string {
             color: #4ade80;
         }
         
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            text-align: center;
-            padding: 3rem 0;
+        .code-block .function {
+            color: #60a5fa;
         }
         
-        .stat h3 {
-            font-size: 2.5rem;
-            color: var(--accent);
+        .code-block .variable {
+            color: #f472b6;
         }
         
-        .stat p {
-            color: var(--text-muted);
+        .code-block .method {
+            color: #2dd4bf;
         }
         
+        /* Footer */
         footer {
-            padding: 3rem 0;
+            background: var(--bg-card);
             border-top: 1px solid var(--border);
-            text-align: center;
-            color: var(--text-muted);
+            padding: 4rem 2rem 2rem;
         }
         
-        footer a {
-            color: var(--accent);
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 3rem;
+        }
+        
+        .footer-brand {
+            max-width: 300px;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+        
+        .footer-logo span {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        
+        .footer-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text);
+            margin-bottom: 1.25rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-link {
+            color: var(--text-muted);
             text-decoration: none;
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--accent);
+        }
+        
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .footer-social a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-social a:hover {
+            color: var(--accent);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
         }
         
         @media (max-width: 768px) {
-            .hero h2 {
-                font-size: 2.5rem;
+            .nav-links {
+                display: none;
             }
             
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .header-content {
+            .hero-stats {
                 flex-direction: column;
-                gap: 1rem;
+                gap: 2rem;
             }
             
-            nav a {
-                margin: 0 1rem;
+            .hero-stat-value {
+                font-size: 2rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .footer-brand {
+                max-width: 100%;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <img src="logo.png" alt="SQLite-4.0 Logo">
-                <h1>SQLite-4.0<span>.0</span></h1>
-            </div>
-            <nav>
-                <a href="#features">Features</a>
-                <a href="#quickstart">Quick Start</a>
-                <a href="#docs">Documentation</a>
-                <a href="https://github.com/KatsumaAI/SQLite-4.0">GitHub</a>
-            </nav>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="logo-link">
+                <img src="logo.png" alt="SQLite-4.0" class="logo-img">
+                <span class="logo-text">SQLite-4.0<span class="logo-version">.0</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#quickstart" class="nav-link">Quick Start</a></li>
+                <li><a href="#docs" class="nav-link">Docs</a></li>
+                <li><a href="#comparison" class="nav-link">Compare</a></li>
+            </ul>
+            <a href="https://github.com/KatsumaAI/SQLite-4.0" class="nav-cta">Get Started</a>
         </div>
-    </header>
+    </nav>
     
     <section class="hero">
-        <div class="container">
-            <h2>Secure Embedded Database<br>for Modern Applications</h2>
-            <p>A lightweight, encrypted SQL database with enterprise features. Zero dependencies, full encryption, and powerful APIs.</p>
-            <div class="badges">
-                <span class="badge">AES-256-GCM</span>
-                <span class="badge">Node.js 14+</span>
-                <span class="badge">MIT License</span>
-                <span class="badge">TypeScript Ready</span>
+        <div class="hero-content">
+            <div class="hero-badge">v4.0.0 Now Available</div>
+            <h1>
+                <span class="hero-title">Secure Embedded Database</span><br>
+                <span class="hero-subtitle">for Modern Applications</span>
+            </h1>
+            <p class="hero-description">
+                A lightweight, encrypted SQL database with enterprise features. Zero dependencies, 
+                full encryption, and powerful APIs designed for developers who demand security and performance.
+            </p>
+            <div class="hero-buttons">
+                <a href="https://github.com/KatsumaAI/SQLite-4.0" class="btn btn-primary">
+                    Install Now
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#quickstart" class="btn btn-secondary">View Documentation</a>
             </div>
-            <a href="https://github.com/KatsumaAI/SQLite-4.0" class="btn btn-primary">Get Started</a>
-            <a href="#quickstart" class="btn btn-outline">View Demo</a>
-        </div>
-    </section>
-    
-    <section class="stats">
-        <div class="container">
-            <div class="stat">
-                <h3>9</h3>
-                <p>Core Modules</p>
-            </div>
-            <div class="stat">
-                <h3>0</h3>
-                <p>Dependencies</p>
-            </div>
-            <div class="stat">
-                <h3>100%</h3>
-                <p>Open Source</p>
-            </div>
-            <div class="stat">
-                <h3>MIT</h3>
-                <p>License</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">14</div>
+                    <div class="hero-stat-label">Core Modules</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">0</div>
+                    <div class="hero-stat-label">Dependencies</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">100%</div>
+                    <div class="hero-stat-label">Open Source</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">MIT</div>
+                    <div class="hero-stat-label">License</div>
+                </div>
             </div>
         </div>
     </section>
     
     <section id="features">
         <div class="container">
-            <h2 class="section-title">Enterprise Features</h2>
-            <div class="features">
-                <div class="feature">
+            <div class="section-header">
+                <span class="section-tag">Enterprise Features</span>
+                <h2 class="section-title">Everything You Need</h2>
+                <p class="section-description">
+                    Production-ready features for modern applications
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
                     <div class="feature-icon">🔐</div>
-                    <h3>Encryption at Rest</h3>
-                    <p>AES-256-GCM encryption protects your data. Every byte is encrypted with military-grade cryptography.</p>
+                    <h3 class="feature-title">Encryption at Rest</h3>
+                    <p class="feature-description">
+                        AES-256-GCM encryption protects your data. Every byte is encrypted with 
+                        military-grade cryptography, ensuring your sensitive information stays secure.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">🔐</div>
-                    <h3>TLS Network Security</h3>
-                    <p>Secure TCP/TLS connections for distributed deployments. IP allowlisting supported.</p>
+                    <h3 class="feature-title">TLS Network Security</h3>
+                    <p class="feature-description">
+                        Secure TCP/TLS connections for distributed deployments. IP allowlisting 
+                        and rate limiting to prevent unauthorized access and DoS attacks.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">👥</div>
-                    <h3>Role-Based Access</h3>
-                    <p>User authentication with admin, operator, readonly, and viewer roles. Fine-grained permissions.</p>
+                    <h3 class="feature-title">Role-Based Access</h3>
+                    <p class="feature-description">
+                        User authentication with admin, operator, readonly, and viewer roles. 
+                        Fine-grained permissions for complete access control.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">📊</div>
-                    <h3>Query Builder</h3>
-                    <p>Chainable API for building queries. Type-safe with full TypeScript support.</p>
+                    <h3 class="feature-title">Query Builder</h3>
+                    <p class="feature-description">
+                        Chainable API for building queries with full TypeScript support. 
+                        Type-safe and intuitive for rapid development.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">🔄</div>
-                    <h3>Replication</h3>
-                    <p>Master-slave replication with real-time sync. Auto-reconnection and conflict resolution.</p>
+                    <h3 class="feature-title">Replication</h3>
+                    <p class="feature-description">
+                        Master-slave replication with real-time sync. Auto-reconnection 
+                        and conflict resolution for high availability.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">💾</div>
-                    <h3>Encrypted Backups</h3>
-                    <p>Compress and encrypt backups. Scheduled backup support with retention policies.</p>
+                    <h3 class="feature-title">Encrypted Backups</h3>
+                    <p class="feature-description">
+                        Compress and encrypt backups with scheduled support. Retention 
+                        policies and point-in-time recovery options.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">🔗</div>
-                    <h3>Connection Pooling</h3>
-                    <p>Efficient connection management with min/max limits. Auto-reaping idle connections.</p>
+                    <h3 class="feature-title">Connection Pooling</h3>
+                    <p class="feature-description">
+                        Efficient connection management with min/max limits. Auto-reaping 
+                        idle connections and connection validation.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">📝</div>
-                    <h3>Migrations</h3>
-                    <p>Version-controlled schema changes. Rollback support and batch management.</p>
+                    <h3 class="feature-title">Migrations</h3>
+                    <p class="feature-description">
+                        Version-controlled schema changes with rollback support. Batch 
+                        management for clean deployment workflows.
+                    </p>
                 </div>
-                <div class="feature">
+                <div class="feature-card">
                     <div class="feature-icon">📈</div>
-                    <h3>Events System</h3>
-                    <p>Hook into queries, transactions, and auth events. Perfect for audit logging.</p>
+                    <h3 class="feature-title">Events & Metrics</h3>
+                    <p class="feature-description">
+                        Hook into queries, transactions, and auth events. Prometheus-compatible 
+                        metrics for complete observability.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
     
-    <section id="quickstart">
+    <section id="quickstart" class="code-section">
         <div class="container">
-            <h2 class="section-title">Quick Start</h2>
-            
-            <h3 style="margin: 2rem 0 1rem;">Installation</h3>
-            <div class="code">
-                <code><span class="comment"># Clone and install</span><br>
-npm install sqlite4<br>
-<span class="comment"># Or from GitHub</span><br>
-git clone https://github.com/KatsumaAI/SQLite-4.0.git</code>
+            <div class="section-header">
+                <span class="section-tag">Quick Start</span>
+                <h2 class="section-title">Get Started in Minutes</h2>
+                <p class="section-description">
+                    Install and start using SQLite-4.0 in your project
+                </p>
             </div>
-            
-            <h3 style="margin: 2rem 0 1rem;">Basic Usage</h3>
-            <div class="code">
-                <code><span class="keyword">const</span> SQLite4 = <span class="keyword">require</span>(<span class="string">'sqlite4'</span>);<br>
-<br>
-<span class="comment">// Create database with encryption</span><br>
-<span class="keyword">const</span> db = <span class="keyword">new</span> SQLite4({<br>
-&nbsp;&nbsp;dbPath: <span class="string">'./data/app.db'</span>,<br>
-&nbsp;&nbsp;key: <span class="string">'your-secret-key'</span><br>
-});<br>
-<br>
-<span class="comment">// Execute queries</span><br>
-db.execute(<span class="string">`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)`</span>);<br>
-db.execute(<span class="string">`INSERT INTO users (name) VALUES ('Alice')`</span>);<br>
-<span class="keyword">const</span> result = db.execute(<span class="string">`SELECT * FROM users`</span>);<br>
-console.log(result.rows);</code>
+            <div class="code-tabs">
+                <button class="code-tab active" data-tab="install">Installation</button>
+                <button class="code-tab" data-tab="basic">Basic Usage</button>
+                <button class="code-tab" data-tab="builder">Query Builder</button>
+                <button class="code-tab" data-tab="schema">Schema Builder</button>
             </div>
-            
-            <h3 style="margin: 2rem 0 1rem;">Query Builder</h3>
-            <div class="code">
-                <code><span class="comment">// Chainable query builder</span><br>
-<span class="keyword">const</span> users = <span class="keyword">await</span> db<br>
-&nbsp;&nbsp;.select(<span class="string">'name'</span>, <span class="string">'email'</span>)<br>
-&nbsp;&nbsp;.from(<span class="string">'users'</span>)<br>
-&nbsp;&nbsp;.where(<span class="string">'status'</span>, <span class="string">'active'</span>)<br>
-&nbsp;&nbsp;.orderBy(<span class="string">'created_at'</span>, <span class="string">'DESC'</span>)<br>
-&nbsp;&nbsp;.limit(10)<br>
-&nbsp;&nbsp;.all();</code>
-            </div>
-            
-            <h3 style="margin: 2rem 0 1rem;">Schema Builder</h3>
-            <div class="code">
-                <code><span class="comment">// Programmatic schema creation</span><br>
-db.schema.create(<span class="string">'posts'</span>, (table) => {<br>
-&nbsp;&nbsp;table.increments(<span class="string">'id'</span>);<br>
-&nbsp;&nbsp;table.string(<span class="string">'title'</span>, 255);<br>
-&nbsp;&nbsp;table.text(<span class="string">'content'</span>);<br>
-&nbsp;&nbsp;table.integer(<span class="string">'user_id'</span>).references(<span class="string">'users'</span>, <span class="string">'id'</span>);<br>
-&nbsp;&nbsp;table.timestamp(<span class="string">'created_at'</span>);<br>
-});</code>
+            <div class="code-block">
+                <code id="code-content">
+<span class="comment"># Install via npm</span><br>
+<span class="keyword">npm</span> install sqlite4<br><br>
+<span class="comment"># Or clone from GitHub</span><br>
+<span class="keyword">git</span> clone https://github.com/KatsumaAI/SQLite-4.0.git
+                </code>
             </div>
         </div>
     </section>
     
-    <section style="background: var(--bg-card);">
+    <section id="docs">
         <div class="container">
-            <h2 class="section-title">Docker Support</h2>
-            <div class="code">
-                <code><span class="comment"># Basic container</span><br>
-docker compose up -d<br>
-<br>
-<span class="comment"># With TLS and authentication</span><br>
-docker compose -f docker-compose.tls.yml up -d<br>
-<br>
-<span class="comment"># High availability with replication</span><br>
-docker compose -f docker-compose.ha.yml up -d</code>
+            <div class="section-header">
+                <span class="section-tag">Documentation</span>
+                <h2 class="section-title">Full API Reference</h2>
+                <p class="section-description">
+                    Comprehensive guides and API documentation
+                </p>
             </div>
-        </div>
-    </section>
-    
-    <section>
-        <div class="container">
-            <h2 class="section-title">Web Admin Panel</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
-                Built-in admin interface for database management at <strong>https://localhost:8443</strong>
-            </p>
-            <div class="code">
-                <code><span class="comment"># Start admin panel</span><br>
-npm run admin</code>
+            <div class="features-grid">
+                <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki" class="feature-card" style="text-decoration: none;">
+                    <div class="feature-icon">📚</div>
+                    <h3 class="feature-title">Wiki & Guides</h3>
+                    <p class="feature-description">
+                        Step-by-step tutorials and in-depth guides for all features.
+                    </p>
+                </a>
+                <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/API-Reference" class="feature-card" style="text-decoration: none;">
+                    <div class="feature-icon">📖</div>
+                    <h3 class="feature-title">API Reference</h3>
+                    <p class="feature-description">
+                        Complete API documentation with examples and TypeScript definitions.
+                    </p>
+                </a>
+                <a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/Examples" class="feature-card" style="text-decoration: none;">
+                    <div class="feature-icon">💡</div>
+                    <h3 class="feature-title">Examples</h3>
+                    <p class="feature-description">
+                        Real-world examples and use cases to help you get started quickly.
+                    </p>
+                </a>
             </div>
         </div>
     </section>
     
     <footer>
-        <div class="container">
-            <p>SQLite-4.0 - Secure Embedded Database</p>
-            <p style="margin-top: 1rem;">
-                <a href="https://github.com/KatsumaAI/SQLite-4.0">GitHub</a> •
-                <a href="https://github.com/KatsumaAI/SQLite-4.0/issues">Issues</a> •
-                <a href="https://github.com/KatsumaAI/SQLite-4.0/releases">Releases</a>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <img src="logo.png" alt="SQLite-4.0">
+                    <span>SQLite-4.0</span>
+                </div>
+                <p class="footer-description">
+                    A secure, lightweight embedded database for modern Node.js applications. 
+                    Built with security and developer experience in mind.
+                </p>
+            </div>
+            <div>
+                <h4 class="footer-title">Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/wiki" class="footer-link">Documentation</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/wiki/API-Reference" class="footer-link">API Reference</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/issues" class="footer-link">Issues</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/releases" class="footer-link">Releases</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-title">Community</h4>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/discussions" class="footer-link">Discussions</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/blob/main/CONTRIBUTING.md" class="footer-link">Contributing</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/blob/main/CHANGELOG.md" class="footer-link">Changelog</a></li>
+                    <li><a href="https://discord.gg/katsuma" class="footer-link">Discord</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-title">Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/blob/main/LICENSE" class="footer-link">MIT License</a></li>
+                    <li><a href="https://github.com/KatsumaAI/SQLite-4.0/security" class="footer-link">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copyright">
+                © 2025 SQLite-4.0. Built with ❤️ by Katsuma
             </p>
-            <p style="margin-top: 2rem; opacity: 0.5;">
-                Built with ❤️ by Katsuma
-            </p>
+            <div class="footer-social">
+                <a href="https://github.com/KatsumaAI/SQLite-4.0">GitHub</a>
+                <a href="https://twitter.com/katsuma_ai">Twitter</a>
+            </div>
         </div>
     </footer>
+    
+    <script>
+        // Tab switching functionality
+        const codeTabs = document.querySelectorAll('.code-tab');
+        const codeContent = document.getElementById('code-content');
+        
+        const codeSnippets = {
+            install: `<span class="comment"># Install via npm</span><br>
+<span class="keyword">npm</span> install sqlite4<br><br>
+<span class="comment"># Or clone from GitHub</span><br>
+<span class="keyword">git</span> clone https://github.com/KatsumaAI/SQLite-4.0.git`,
+            
+            basic: `<span class="keyword">const</span> <span class="variable">SQLite4</span> = <span class="keyword">require</span>(<span class="string">'sqlite4'</span>);<br><br>
+<span class="comment">// Create database with encryption</span><br>
+<span class="keyword">const</span> <span class="variable">db</span> = <span class="keyword">new</span> <span class="variable">SQLite4</span>({<br>
+&nbsp;&nbsp;<span class="string">dbPath:</span> <span class="string">'./data/app.db'</span>,<br>
+&nbsp;&nbsp;<span class="string">key:</span> <span class="string">'your-secret-key'</span><br>
+});<br><br>
+<span class="comment">// Execute queries</span><br>
+<span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)\`</span>);<br>
+<span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`INSERT INTO users (name) VALUES ('Alice')\`</span>);<br>
+<span class="keyword">const</span> <span class="variable">result</span> = <span class="variable">db</span>.<span class="method">execute</span>(<span class="string">\`SELECT * FROM users\`</span>);<br>
+<span class="function">console</span>.<span class="method">log</span>(<span class="variable">result</span>.rows);`,
+            
+            builder: `<span class="comment">// Chainable query builder</span><br>
+<span class="keyword">const</span> <span class="variable">users</span> = <span class="keyword">await</span> <span class="variable">db</span><br>
+&nbsp;&nbsp;.<span class="method">select</span>(<span class="string">'name'</span>, <span class="string">'email'</span>)<br>
+&nbsp;&nbsp;.<span class="method">from</span>(<span class="string">'users'</span>)<br>
+&nbsp;&nbsp;.<span class="method">where</span>(<span class="string">'status'</span>, <span class="string">'active'</span>)<br>
+&nbsp;&nbsp;.<span class="method">orderBy</span>(<span class="string">'created_at'</span>, <span class="string">'DESC'</span>)<br>
+&nbsp;&nbsp;.<span class="method">limit</span>(10)<br>
+&nbsp;&nbsp;.<span class="method">all</span>();`,
+            
+            schema: `<span class="comment">// Programmatic schema creation</span><br>
+<span class="variable">db</span>.schema.<span class="method">create</span>(<span class="string">'posts'</span>, (<span class="variable">table</span>) => {<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">increments</span>(<span class="string">'id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">string</span>(<span class="string">'title'</span>, 255);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">text</span>(<span class="string">'content'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">integer</span>(<span class="string">'user_id'</span>).<span class="method">references</span>(<span class="string">'users'</span>, <span class="string">'id'</span>);<br>
+&nbsp;&nbsp;<span class="variable">table</span>.<span class="method">timestamp</span>(<span class="string">'created_at'</span>);<br>
+});`
+        };
+        
+        codeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update active state
+                codeTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update code content
+                codeContent.innerHTML = codeSnippets[tab.dataset.tab];
+            });
+        });
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
