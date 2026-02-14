@@ -1,60 +1,47 @@
 # SQLite-4.0
 
-**Secure embedded SQL database with encryption, access control, and enterprise features.**
+**Secure Embedded Database for Modern Applications**
 
-[![npm version](https://img.shields.io/npm/v/sqlite4.svg)](https://npmjs.com/package/sqlite4)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js 14+](https://img.shields.io/badge/Node.js-14+-green.svg)](https://nodejs.org)
-
-A lightweight, encrypted SQL database for modern Node.js applications. Zero dependencies, full encryption, and powerful APIs.
+A secure embedded SQL database with enterprise features: AES-256-GCM encryption, Auth0 OAuth, 2FA, replication, and zero dependencies.
 
 ## Features
 
-- **Encryption at Rest** - AES-256-GCM encryption protects all data
-- **TLS Network Security** - Secure TCP/TLS connections for distributed deployments
-- **Role-Based Access** - User authentication with admin, operator, readonly, and viewer roles
-- **Query Builder** - Chainable API for building queries with full TypeScript support
-- **Replication** - Master-slave replication with real-time sync
-- **Encrypted Backups** - Compress and encrypt backups with scheduled support
-- **Connection Pooling** - Efficient connection management with auto-reaping
-- **Migrations** - Version-controlled schema changes with rollback support
-- **Events System** - Hook into queries, transactions, and auth events
-- **Zero Dependencies** - Pure JavaScript implementation
+- Encryption - AES-256-GCM encryption at rest
+- Auth0 Integration - Discord, Google, GitHub, Twitter, Microsoft OAuth
+- Two-Factor Authentication - TOTP with backup codes
+- Query Builder - Chainable TypeScript-ready API
+- Schema Builder - Programmatic table creation
+- Replication - Master-slave with real-time sync
+- Full-Text Search - Built-in FTS with stemming
+- Connection Pooling - Efficient resource management
+- Metrics - Prometheus-compatible monitoring
+- Zero Dependencies - Pure JavaScript implementation
 
-## Quick Start
+## Installation
 
 ```bash
-# Install
 npm install sqlite4
-
-# or from GitHub
-git clone https://github.com/KatsumaAI/SQLite-4.0.git
-cd SQLite-4.0 && npm install
 ```
 
-### Basic Usage
+## Quick Start
 
 ```javascript
 const SQLite4 = require('sqlite4');
 
-// Create database with encryption
+// Create encrypted database
 const db = new SQLite4({
     dbPath: './data/app.db',
-    key: 'your-secret-key'
+    key: process.env.DB_KEY
 });
 
 // Execute queries
-db.execute(`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)`);
-db.execute(`INSERT INTO users (name) VALUES ('Alice')`);
-const result = db.execute(`SELECT * FROM users`);
-
+await db.execute(`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)`);
+await db.execute(`INSERT INTO users (name) VALUES ('Alice')`);
+const result = await db.execute(`SELECT * FROM users`);
 console.log(result.rows);
-// [{ id: 1, name: 'Alice' }]
-
-db.close();
 ```
 
-### Query Builder
+## Query Builder
 
 ```javascript
 const users = await db
@@ -66,102 +53,79 @@ const users = await db
     .all();
 ```
 
-### Schema Builder
+## Schema Builder
 
 ```javascript
 db.schema.create('posts', (table) => {
     table.increments('id');
     table.string('title', 255);
     table.text('content');
-    table.integer('user_id').references('users', 'id');
     table.timestamp('created_at');
 });
 ```
 
-## Documentation
+## Auth0 Integration
 
-- [Getting Started](https://github.com/KatsumaAI/SQLite-4.0/wiki/Getting-Started)
-- [API Reference](https://github.com/KatsumaAI/SQLite-4.0/wiki/API-Reference)
-- [Query Builder](https://github.com/KatsumaAI/SQLite-4.0/wiki/Query-Builder)
-- [Schema Builder](https://github.com/KatsumaAI/SQLite-4.0/wiki/Schema-Builder)
-- [Migrations](https://github.com/KatsumaAI/SQLite-4.0/wiki/Migrations)
-- [Replication](https://github.com/KatsumaAI/SQLite-4.0/wiki/Replication)
-- [Security](https://github.com/KatsumaAI/SQLite-4.0/wiki/Security)
+```javascript
+const db = new SQLite4({
+    auth0: {
+        domain: 'your.auth0.com',
+        clientId: 'your-client-id',
+        providers: ['discord', 'google', 'github']
+    }
+});
+
+// Get OAuth URL
+const auth = db.auth;
+const { url } = auth.getAuthorizationUrl('discord', {
+    scope: 'identify email'
+});
+```
+
+## Two-Factor Authentication
+
+```javascript
+// Enable 2FA
+const result = await db.security.enable2FA('user@email.com', {
+    issuer: 'SQLite-4.0',
+    digits: 8
+});
+
+console.log('Secret:', result.secret);
+console.log('QR URI:', result.uri);
+console.log('Backup Codes:', result.backupCodes);
+
+// Verify 2FA code
+const verified = await db.security.verify2FA('user@email.com', '12345678');
+```
+
+## Remote Hosting
+
+```bash
+# Start server
+npm run server -- --port 4444
+
+# Expose with ngrok
+ngrok tcp 4444
+```
 
 ## CLI Tools
 
 ```bash
-# Start server
-npm start
-
-# Interactive CLI
-npm run cli
-
-# Web admin panel (port 8443)
-npm run admin
-
-# Backup database
-npm run backup
-
-# Run tests
-npm test
+npm run server   # Start server
+npm run cli     # Interactive CLI
+npm run admin   # Web admin panel
+npm run backup  # Create backup
 ```
 
-## Docker
+## Documentation
 
-```bash
-# Basic container
-docker compose up -d
-
-# With TLS and authentication
-docker compose -f docker-compose.tls.yml up -d
-
-# High availability with replication
-docker compose -f docker-compose.ha.yml up -d
-```
-
-## API
-
-### SQLite4(options)
-
-Create a new database instance.
-
-```javascript
-const db = new SQLite4({
-    dbPath: './data/app.db',  // or ':memory:' for in-memory
-    key: 'your-secret-key',   // encryption key (optional)
-    readonly: false,          // open in read-only mode
-    timeout: 5000            // lock timeout in ms
-});
-```
-
-### Methods
-
-- `execute(sql, params)` - Execute SQL and return result
-- `query(sql, params)` - Execute query and return rows
-- `all(sql, params)` - Get all rows
-- `get(sql, params)` - Get single row
-- `run(sql, params)` - Run INSERT/UPDATE/DELETE
-- `prepare(sql)` - Create prepared statement
-- `begin()` / `commit()` / `rollback()` - Transaction control
-- `backup(destination, options)` - Create backup
-- `close()` - Close database
-
-### Properties
-
-- `path` - Database file path
-- `inMemory` - Whether database is in-memory
-- `closed` - Whether database is closed
-- `inTransaction` - Whether in active transaction
+- [Getting Started](wiki/getting-started/introduction.md)
+- [Core Concepts](wiki/core-concepts/architecture.md)
+- [API Reference](api.html)
+- [Examples](examples/)
+- [FAQ](FAQ.md)
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Author
-
-Built with ❤️ by [Katsuma](https://github.com/KatsumaAI)
-
-## Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+MIT License
