@@ -3,6 +3,7 @@
   "version": "4.0.0",
   "description": "Secure embedded SQL database with encryption, access control, and enterprise features",
   "main": "src/sqlite4.js",
+  "types": "src/index.d.ts",
   "bin": {
     "sqlite4": "src/sqlite4.js",
     "sqlite4-server": "src/server.js",
@@ -21,7 +22,8 @@
     "backup": "node src/backup.js",
     "replication": "node src/replication.js",
     "test": "node -e \"const SQLite4 = require('./src/sqlite4.js'); const db = new SQLite4({dbPath: ':memory:'}); console.log(db.execute('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)').success ? 'CREATE: OK' : 'FAIL'); console.log(db.execute('INSERT INTO test (name) VALUES (\\'test\\')').success ? 'INSERT: OK' : 'FAIL'); console.log(db.execute('SELECT * FROM test').rowCount === 1 ? 'SELECT: OK' : 'FAIL');\"",
-    "security-setup": "bash security-configs/setup-security.sh"
+    "security-setup": "bash security-configs/setup-security.sh",
+    "docs": "node scripts/generate-docs.js"
   },
   "keywords": [
     "database",
@@ -29,19 +31,43 @@
     "encrypted",
     "security",
     "embedded",
-    "sql"
+    "sql",
+    "nodejs",
+    "lightweight"
   ],
-  "author": "Katsuma",
+  "author": {
+    "name": "Katsuma",
+    "url": "https://github.com/KatsumaAI"
+  },
+  "contributors": [],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/KatsumaAI/SQLite-4.0.git"
   },
+  "bugs": {
+    "url": "https://github.com/KatsumaAI/SQLite-4.0/issues"
+  },
+  "homepage": "https://KatsumaAI.github.io/SQLite-4.0",
   "engines": {
     "node": ">=14.0.0"
   },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
   "dependencies": {},
   "optionalDependencies": {
     "better-sqlite3": "^9.0.0"
+  },
+  "peerDependencies": {},
+  "bundledDependencies": [],
+  "publishConfig": {
+    "access": "public"
   }
 }
