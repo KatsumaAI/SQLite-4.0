@@ -6,7 +6,10 @@
   "bin": {
     "sqlite4": "src/sqlite4.js",
     "sqlite4-server": "src/server.js",
-    "sqlite4-client": "src/client.js"
+    "sqlite4-client": "src/client.js",
+    "sqlite4-admin": "src/admin.js",
+    "sqlite4-backup": "src/backup.js",
+    "sqlite4-replication": "src/replication.js"
   },
   "scripts": {
     "start": "node src/server.js",
