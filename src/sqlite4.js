@@ -573,6 +573,40 @@ SQLite4.SchemaBuilder = require('./schema');
 SQLite4.Cache = require('./cache');
 SQLite4.FullTextSearch = require('./fts');
 SQLite4.Metrics = require('./metrics');
+SQLite4.Auth0Integration = require('./auth0');
+SQLite4.TwoFactorAuth = require('./twofactor');
+
+// Security module
+SQLite4.security = {
+    enable2FA: async function(email, options) {
+        const tfa = new (require('./twofactor'))(this, options);
+        return await tfa.enable(email, options);
+    },
+    verify2FA: async function(email, code) {
+        const tfa = new (require('./twofactor'))(this);
+        return tfa.verify(email, code);
+    },
+    disable2FA: async function(email, code) {
+        const tfa = new (require('./twofactor'))(this);
+        return await tfa.disable(email, code);
+    }
+};
+
+// Auth module
+SQLite4.auth = {
+    getAuthUrl: function(provider, options) {
+        const auth0 = new (require('./auth0'))(this, this.options.auth0 || {});
+        return auth0.getAuthorizationUrl(provider, options);
+    },
+    exchangeCode: async function(provider, code, codeVerifier) {
+        const auth0 = new (require('./auth0'))(this, this.options.auth0 || {});
+        return await auth0.exchangeCode(provider, code, codeVerifier);
+    },
+    loginWithProvider: async function(provider, credentials) {
+        const auth0 = new (require('./auth0'))(this, this.options.auth0 || {});
+        return await auth0.authenticateCustomEndpoint(provider, credentials);
+    }
+};
 
 // Version
 SQLite4.VERSION = '4.0.0';
